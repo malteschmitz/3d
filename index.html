@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head>
+  <title>3D</title>
+  <meta charset='utf-8'>
+</head>
+<body>
+<!-- <div>
+  <input type="range" id="rangeA" name="rangeA" min="0" max="3600" value="600">
+  <label for="rangeA">X</label>
+</div>
+<div>
+  <input type="range" id="rangeB" name="rangeB" min="0" max="3600" value="0">
+  <label for="rangeB">Y</label>
+</div>
+<div>
+  <input type="range" id="rangeC" name="rangeC" min="0" max="3600" value="450">
+  <label for="rangeC">Z</label>
+</div> -->
+
+<p><svg xmlns="http://www.w3.org/2000/svg" id="svg" viewBox="-3 -3 6 6" width="600"><path stroke="green" stroke-width="0.1" stroke-linejoin="round" stroke-linecap="round" fill="transparent" id="path"></path></svg></p>
+
+<script>
+let canvasWidth = 100;
+
+const PI = Math.PI;
+const cos = Math.cos;
+const sin = Math.sin;
+
+let canvas = document.createElement('canvas');
+let context = canvas.getContext('2d');
+
+let points = [
+  ["M", 0, -1, 0],
+  ["L", 1, 1, 1],
+  ["L", 1, 1, -1],
+  ["L", -1, 1, -1],
+  ["L", 0, -1, 0],
+  ["L", 1, 1, -1],
+  ["M", -1, 1, -1],
+  ["L", -1, 1, 1],
+  ["L", 0, -1, 0],
+  ["M", -1, 1, 1],
+  ["L", 1, 1, 1]
+];
+
+function get(x, y, z, a, b, c) {
+  let newX = x * cos(b) * cos(c) + z * sin(b) - y * cos(b) * sin(c);
+  let newY = -z * cos(b) * sin(a) + x * (cos(c) * sin(a) * sin(b) + cos(a) * sin(c)) + y * (cos(a) * cos(c) - sin(a) * sin(b) * sin(c));
+  return [newX, newY];
+}
+
+function rnd(val) {
+  return Math.round(val * 1000) / 1000
+}
+
+let a = 0;
+let b = 0;
+let c = 0;
+
+function update() {
+  // let a = rangeA.value / 1800 * PI;
+  // let b = rangeB.value / 1800 * PI;
+  // let c = rangeC.value / 1800 * PI;
+  let data = points.map(value => {
+    let [command, x, y, z] = value;
+    let [x2, y2] = get(x, y, z, a, b, c);
+    return `${command} ${rnd(x2)} ${rnd(y2)}`;
+  });
+  path.setAttribute("d", data.join(" "));
+}
+
+// rangeA.oninput = () => update();
+// rangeB.oninput = () => update();
+// rangeC.oninput = () => update();
+
+update();
+
+function animate(elapsed) {
+  a = (elapsed / 10000) % (2*PI);
+  b = (elapsed / 1000) % (2*PI);;
+  c = 0;
+  update();
+}
+
+let start, previousTimeStamp;
+function step(timestamp) {
+  if (start === undefined) {
+    start = timestamp;
+  }
+  const elapsed = timestamp - start;
+  animate(elapsed);
+  previousTimeStamp = timestamp
+  window.requestAnimationFrame(step);
+}
+window.requestAnimationFrame(step);
+
+</script>
+</body>
+</html>
